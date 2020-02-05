@@ -1,7 +1,6 @@
 <template lang="pug">
   .datepicker__input(
-    @click="toggleDatepicker"
-    @keyup.enter.stop.prevent="toggleDatepicker"
+    @click="inputClick"
     data-qa='datepickerInput'
     :class="inputClass"
     v-text="inputDate ? inputDate : i18n[inputDateType]"
@@ -29,10 +28,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    toggleDatepicker: {
-      type: Function,
-      required: true,
-    },
     showDatepicker: {
       type: Function,
       required: true,
@@ -41,6 +36,10 @@ export default {
       type: Object,
       required: true,
     },
+    focusedInput: {
+      type: Boolean,
+      default: ''
+    },
   },
 
   computed: {
@@ -48,11 +47,18 @@ export default {
       return {
         'datepicker__input--is-active': this.isOpen && this.inputDate == null,
         'datepicker__input--single-date': this.singleDaySelection,
+        'datepicker__input--is-focused': this.focusedInput,
       };
     },
     tabIndex() {
       return this.inputDateType === 'check-in' ? 0 : -1;
     }
   },
+
+  methods: {
+    inputClick(){
+      this.inputDateType === 'check-in' ? this.showDatepicker('from') : this.showDatepicker('to')
+    }
+  }
 };
 </script>

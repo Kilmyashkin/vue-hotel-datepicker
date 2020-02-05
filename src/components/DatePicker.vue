@@ -9,8 +9,8 @@
         :is-open="isOpen"
         :show-datepicker="showDatepicker"
         :hide-datepicker="hideDatepicker"
-        :toggle-datepicker="toggleDatepicker"
-        :single-day-selection="singleDaySelection"
+        :single-day-selection="singleDaySelection",
+        :focused-input="focusedInput == 'from'"
       )
       date-input(
         v-if="!singleDaySelection"
@@ -18,10 +18,10 @@
         :input-date="formatDate(checkOut)"
         input-date-type="check-out"
         :is-open="isOpen"
-        :showDatepicker="showDatepicker"
+        :show-datepicker="showDatepicker"
         :hide-datepicker="hideDatepicker"
-        :toggle-datepicker="toggleDatepicker"
-        :single-day-selection="singleDaySelection"
+        :single-day-selection="singleDaySelection",
+        :focused-input="focusedInput == 'to'"
       )
     .datepicker__clear-button(tabindex="0" @click='clearSelection' v-if="showClearSelectionButton")
       svg(xmlns='http://www.w3.org/2000/svg' viewBox="0 0 68 68")
@@ -46,6 +46,7 @@
             type="button"
           )
       .datepicker__inner
+        span.datepicker__oneway(v-if='checkIn' @click='oneWayTrip') в одну сторону
         .datepicker__header
           span.datepicker__month-button.datepicker__month-button--prev.-hide-up-to-tablet(
             @click='renderPreviousMonth'
@@ -139,6 +140,7 @@
   const defaulti18n = {
     night: 'Night',
     nights: 'Nights',
+    'day-short': ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'],
     'day-names': ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'],
     'check-in': 'Check-in',
     'check-out': 'Check-out',
@@ -266,6 +268,7 @@
         yUp: null,
         sortedDisabledDates: null,
         screenSize: this.handleWindowResize(),
+        focusedInput: ''
       };
     },
 
@@ -305,6 +308,7 @@
           this.parseDisabledDates();
           this.reRender()
           this.isOpen = false;
+          this.focusedInput = ''
         }
 
         this.$emit("check-out-changed", newDate)
@@ -314,7 +318,10 @@
 
     methods: {
       ...Helpers,
-
+      oneWayTrip(){
+        this.checkOut = null
+        this.hideDatepicker()
+      },
       formatDate(date) {
         if (date) {
           return fecha.format(date, this.format);
@@ -380,9 +387,13 @@
 
       hideDatepicker() {
         this.isOpen = false;
+        this.focusedInput = ''
       },
 
-      showDatepicker() {
+      showDatepicker(val) {
+        if (val) {
+          this.focusedInput = val
+        }
         this.isOpen = true;
       },
 
@@ -397,6 +408,9 @@
       },
 
       handleDayClick(event) {
+        if (this.checkIn == null){
+          this.focusedInput = 'to'
+        }
 
         if (this.checkIn == null && this.singleDaySelection == false) {
           this.checkIn = event.date;
@@ -501,17 +515,6 @@
     },
 
     beforeMount() {
-      fecha.i18n = {
-        dayNames: this.i18n['day-names'],
-        dayNamesShort: this.shortenString(this.i18n['day-names'], 3),
-        monthNames: this.i18n['month-names'],
-        monthNamesShort: this.shortenString(this.i18n['month-names'], 3),
-        amPm: ['am', 'pm'],
-        // D is the day of the month, function returns something like...  3rd or 11th
-        DoFn: function (D) {
-          return D + ['th', 'st', 'nd', 'rd'][D % 10 > 3 ? 0 : (D - D % 10 !== 10) * D % 10];
-        }
-      };
         if(this.checkIn &&
         (this.getMonthDiff(this.getNextMonth(new Date(this.startDate)), this.checkIn) > 0 ||
         this.getMonthDiff(this.startDate, this.checkIn) > 0)){
@@ -543,6 +546,19 @@
       this.onElementHeightChange(document.body, () => {
         this.emitHeighChangeEvent();
       });
+
+      fecha.i18n = {
+        dayNames: this.i18n['day-names'],
+        dayNamesShort: this.i18n['day-names-short'],
+        monthNames: this.i18n['month-names'],
+        monthNamesShort: this.shortenString(this.i18n['month-names'], 3),
+        amPm: ['am', 'pm'],
+        // D is the day of the month, function returns something like...  3rd or 11th
+        DoFn: function (D) {
+          return D + ['th', 'st', 'nd', 'rd'][D % 10 > 3 ? 0 : (D - D % 10 !== 10) * D % 10];
+        }
+      };
+      console.log(fecha.i18n)
     },
 
     destroyed() {
@@ -763,6 +779,10 @@
                 width: 100%;
                 background: none;
                 text-align: left;
+            }
+
+            &--is-focused {
+                border: 1px solid red;
             }
         }
 
