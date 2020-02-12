@@ -48,7 +48,7 @@ export default {
         'datepicker__input--is-active': this.isOpen && this.inputDate == null,
         'datepicker__input--single-date': this.singleDaySelection,
         'datepicker__input--is-focused': this.focusedInput,
-        'datepicker__input--no-value': this.inputDate == null
+        'datepicker__input--no-value': !this.inputDate
       };
     },
     tabIndex() {
