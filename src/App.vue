@@ -6,6 +6,7 @@
         <h3>Allow check-in and check-out on the same day</h3>
         <DatePicker
           :minNights="0"
+          :displayClearCheckOutButton="true"
           :i18n="{
             night: 'Night',
             nights: 'Nights',

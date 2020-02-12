@@ -26,8 +26,11 @@
     .datepicker__clear-button(tabindex="0" @click='clearSelection' v-if="showClearSelectionButton")
       svg(xmlns='http://www.w3.org/2000/svg' viewBox="0 0 68 68")
         path(d='M6.5 6.5l55 55M61.5 6.5l-55 55')
-
+    .datepicker__clear-check-out-button(tabindex="0" @click='clearCheckOut' v-if="showClearCheckOutButton")
     .datepicker( :class='`${ isOpen ? "datepicker--open" : "datepicker--closed" }`')
+      .datepicker__header
+        span.datepicker__header-text(v-text='headerText')
+        span.datepicker__oneway(v-if='checkIn' @click='oneWayTrip' v-text='onewayButton')
       .-hide-on-desktop
         .datepicker__dummy-wrapper.datepicker__dummy-wrapper--no-border(
           @click='toggleDatepicker' :class="`${isOpen ? 'datepicker__dummy-wrapper--is-active' : ''}`"
@@ -46,12 +49,12 @@
             type="button"
           )
       .datepicker__inner
-        span.datepicker__oneway(v-if='checkIn' @click='oneWayTrip') в одну сторону
         .datepicker__header
           span.datepicker__month-button.datepicker__month-button--prev.-hide-up-to-tablet(
             @click='renderPreviousMonth'
             @keyup.enter.stop.prevent='renderPreviousMonth'
             :tabindex='isOpen ? 0 : -1'
+            :class="{disabled: !activeMonthIndex}"
           )
           span.datepicker__month-button.datepicker__month-button--next.-hide-up-to-tablet(
             @click='renderNextMonth'
@@ -160,6 +163,14 @@
     },
 
     props: {
+      headerText: {
+        type: String,
+        default: "Выберите дату"
+      },
+      onewayButton: {
+        type: String,
+        default: "Обратный перелёт не нужен"
+      },
       currentDateStyle:{
         default:() => ({border: "1px solid #00c690"}),
       },
@@ -247,6 +258,10 @@
         type: Boolean,
       },
       displayClearButton: {
+        default: false,
+        type: Boolean,
+      },
+      displayClearCheckOutButton: {
         default: true,
         type: Boolean,
       }
@@ -276,6 +291,9 @@
       showClearSelectionButton() {
         return Boolean((this.checkIn || this.checkOut) && this.displayClearButton);
       },
+      showClearCheckOutButton(){
+        return Boolean(this.checkOut && this.displayClearCheckOutButton);
+      }
     },
 
     watch: {
@@ -383,6 +401,11 @@
         this.show = true;
         this.parseDisabledDates();
         this.reRender()
+      },
+
+      clearCheckOut(){
+        this.hoveringDate = null,
+        this.checkOut = null;
       },
 
       hideDatepicker() {
