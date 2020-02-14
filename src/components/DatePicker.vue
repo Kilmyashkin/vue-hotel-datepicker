@@ -339,6 +339,7 @@
       oneWayTrip(){
         this.checkOut = null
         this.hideDatepicker()
+        this.$emit("one-day-selected")
       },
       formatDate(date) {
         if (date) {
