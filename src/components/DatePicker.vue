@@ -432,23 +432,38 @@
       },
 
       handleDayClick(event) {
-        if (this.checkIn == null){
+        if (this.focusedInput == 'from'){
+          this.checkIn = event.date;
           this.focusedInput = 'to'
+          if (this.checkOut && this.checkIn - this.checkOut > 0){
+            this.checkOut = null
+          }
+        } else {
+          this.checkOut = event.date
+
+          if (this.checkIn && this.checkIn - this.checkOut > 0){
+            this.checkIn = null
+            this.focusedInput = 'from'
+          }
         }
 
-        if (this.checkIn == null && this.singleDaySelection == false) {
-          this.checkIn = event.date;
-        } else if (this.singleDaySelection == true) {
-          this.checkIn = event.date
-          this.checkOut = event.date
-        }
-        else if (this.checkIn !== null && this.checkOut == null) {
-          this.checkOut = event.date;
-        }
-        else {
-          this.checkOut = null;
-          this.checkIn = event.date;
-        }
+        // if (this.checkIn == null){
+        //   this.focusedInput = 'to'
+        // }
+        //
+        // if (this.checkIn == null && this.singleDaySelection == false) {
+        //   this.checkIn = event.date;
+        // } else if (this.singleDaySelection == true) {
+        //   this.checkIn = event.date
+        //   this.checkOut = event.date
+        // }
+        // else if (this.checkIn !== null && this.checkOut == null) {
+        //   this.checkOut = event.date;
+        // }
+        // else {
+        //   this.checkOut = null;
+        //   this.checkIn = event.date;
+        // }
 
         this.nextDisabledDate = event.nextDisabledDate
       },
